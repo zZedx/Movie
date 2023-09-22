@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import StarRating from "./StarRating";
 
 const tempMovieData = [
   {
@@ -55,32 +56,43 @@ export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoading2, setIsLoading2] = useState(false);
   const [query, setQuery] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [selectedMovie, setSelectedMovie] = useState(null);
+
+  async function handleSelectMovie(id) {
+    setIsLoading2(true)
+    const res = await fetch(`http://www.omdbapi.com/?i=${id}&apikey=${KEY}`);
+    const data = await res.json();
+    setSelectedMovie((selectedMovie) =>
+      selectedMovie?.imdbID === id ? null : data
+    );
+    setIsLoading2(false)
+  }
 
   useEffect(() => {
     async function fetchApi() {
       try {
+        setErrorMsg("");
         setIsLoading(true);
         const res = await fetch(
           `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
         );
         if (!res.ok) throw new Error("Something went wrong");
         const data = await res.json();
-        console.log(data)
-        if(data.Error) throw new Error(data.Error)
-        setErrorMsg('')
+        if (data.Error) throw new Error(data.Error);
         setMovies(data.Search);
       } catch (e) {
         setErrorMsg(e.message);
-      }finally{
-        setIsLoading(false)
+      } finally {
+        setIsLoading(false);
       }
     }
-    if(query.length < 3){
-      setMovies([])
-      setErrorMsg('')
-      return
+    if (query.length < 3) {
+      setMovies([]);
+      setErrorMsg("");
+      return;
     }
     fetchApi();
   }, [query]);
@@ -106,16 +118,22 @@ export default function App() {
       </Navbar>
       <Main>
         <Box>
-          {!isLoading && errorMsg &&
-            <ErrorMsg errorMsg={errorMsg} />}
-          {isLoading && <Loader/>}
-            {!isLoading && !errorMsg &&
-            <MovieList movies={movies} />
-          }
+          {!isLoading && errorMsg && <ErrorMsg errorMsg={errorMsg} />}
+          {isLoading && <Loader />}
+          {!isLoading && !errorMsg && (
+            <MovieList movies={movies} handleSelectMovie={handleSelectMovie} />
+          )}
         </Box>
         {
           <Box>
-            <WatchedList watched={watched} />
+            {isLoading2 ? <Loader/> : selectedMovie ? (
+              <MovieDetails
+                selectedMovie={selectedMovie}
+                setSelectedMovie={setSelectedMovie}
+              />
+            ) : (
+              <WatchedList watched={watched} />
+            )}
           </Box>
         }
       </Main>
@@ -126,7 +144,7 @@ export default function App() {
 function Loader() {
   return <p className="loader">Loading...</p>;
 }
-function ErrorMsg({ errorMsg}) {
+function ErrorMsg({ errorMsg }) {
   return <p className="loader">{errorMsg}</p>;
 }
 
@@ -176,19 +194,23 @@ function Box({ children }) {
   );
 }
 
-function MovieList({ movies }) {
+function MovieList({ movies, handleSelectMovie }) {
   return (
-    <ul className="list">
+    <ul className="list list-movies">
       {movies?.map((movie) => (
-        <MovieListItems movie={movie} key={movie.imdbID} />
+        <MovieListItems
+          movie={movie}
+          handleSelectMovie={handleSelectMovie}
+          key={movie.imdbID}
+        />
       ))}
     </ul>
   );
 }
 
-function MovieListItems({ movie }) {
+function MovieListItems({ movie, handleSelectMovie }) {
   return (
-    <li>
+    <li onClick={() => handleSelectMovie(movie.imdbID)}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
@@ -198,6 +220,59 @@ function MovieListItems({ movie }) {
         </p>
       </div>
     </li>
+  );
+}
+
+function MovieDetails({ selectedMovie, setSelectedMovie }) {
+  const {
+    Title: title,
+    Year: year,
+    Poster: poster,
+    Runtime: runtime,
+    imdbRating,
+    Plot: plot,
+    Release: released,
+    Actors: actors,
+    Director: director,
+    Genre: genre,
+  } = selectedMovie;
+
+  return (
+    <div className="details">
+      <header>
+        <button className="btn-back" onClick={() => setSelectedMovie(null)}>
+          &larr;
+        </button>
+        <img src={poster} alt="poster" />
+        <div className="details-overview">
+          <h2>{title}</h2>
+          <p>
+            {released} &bull; {runtime}
+          </p>
+          <p>{genre}</p>
+          <p>
+            <span>😍</span>
+            {imdbRating} IMDB rating
+          </p>
+        </div>
+      </header>
+      <section>
+        <div className="rating">
+          <StarRating maxRating={10} size={24} />
+        </div>
+        <p>
+          <em>{plot}</em>
+        </p>
+        <p>
+          <b>Starring : </b>
+          {actors}
+        </p>
+        <p>
+          <b>Directed by : </b>
+          {director}
+        </p>
+      </section>
+    </div>
   );
 }
 
