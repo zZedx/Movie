@@ -60,15 +60,18 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [alreadyWatched , setAlreadyWacthed] = useState({})
 
   async function handleSelectMovie(id) {
-    setIsLoading2(true)
+    setIsLoading2(true);
     const res = await fetch(`http://www.omdbapi.com/?i=${id}&apikey=${KEY}`);
     const data = await res.json();
     setSelectedMovie((selectedMovie) =>
       selectedMovie?.imdbID === id ? null : data
     );
-    setIsLoading2(false)
+    const filterArr = watched.filter(m => m.imdbID === id)
+    filterArr.length && setAlreadyWacthed(filterArr.at(0))
+    setIsLoading2(false);
   }
 
   useEffect(() => {
@@ -96,6 +99,12 @@ export default function App() {
     }
     fetchApi();
   }, [query]);
+
+  function handleAddWatched(movie) {
+    const filterArr = watched.filter(m => m.imdbID !== movie.imdbID)
+    setWatched((watched) => [...filterArr, movie]);
+    setSelectedMovie(null);
+  }
 
   // const [isMobile, setIsMobile] = useState(false);
   // useEffect(() => {
@@ -126,10 +135,14 @@ export default function App() {
         </Box>
         {
           <Box>
-            {isLoading2 ? <Loader/> : selectedMovie ? (
+            {isLoading2 ? (
+              <Loader />
+            ) : selectedMovie ? (
               <MovieDetails
+                alreadyWatched ={alreadyWatched}
                 selectedMovie={selectedMovie}
                 setSelectedMovie={setSelectedMovie}
+                handleAddWatched={handleAddWatched}
               />
             ) : (
               <WatchedList watched={watched} />
@@ -223,7 +236,8 @@ function MovieListItems({ movie, handleSelectMovie }) {
   );
 }
 
-function MovieDetails({ selectedMovie, setSelectedMovie }) {
+function MovieDetails({ selectedMovie, setSelectedMovie, handleAddWatched , alreadyWatched}) {
+  const [userRating, setUserRating] = useState(0);
   const {
     Title: title,
     Year: year,
@@ -235,7 +249,19 @@ function MovieDetails({ selectedMovie, setSelectedMovie }) {
     Actors: actors,
     Director: director,
     Genre: genre,
+    imdbID
   } = selectedMovie;
+
+  function handleAdd() {
+    handleAddWatched({
+      imdbID,
+      title,
+      userRating,
+      imdbRating: Number(imdbRating),
+      poster,
+      runtime: parseInt(runtime.split(' ').at(0)),
+    });
+  }
 
   return (
     <div className="details">
@@ -251,14 +277,17 @@ function MovieDetails({ selectedMovie, setSelectedMovie }) {
           </p>
           <p>{genre}</p>
           <p>
-            <span>😍</span>
+            <span>⭐</span>
             {imdbRating} IMDB rating
           </p>
         </div>
       </header>
       <section>
         <div className="rating">
-          <StarRating maxRating={10} size={24} />
+          <StarRating maxRating={10} size={24} onSetRating={setUserRating} defaultRating={alreadyWatched.imdbID ===imdbID ? alreadyWatched.userRating : 0}/>
+          {userRating>0 && <button className="btn-add" onClick={handleAdd}>
+            {alreadyWatched.imdbID ===imdbID ? 'Edit rating' : '+ Add to list'}
+          </button>}
         </div>
         <p>
           <em>{plot}</em>
@@ -292,8 +321,8 @@ function WatchedList({ watched }) {
 function WatchedListItems({ movie }) {
   return (
     <li>
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
-      <h3>{movie.Title}</h3>
+      <img src={movie.poster} alt={`${movie.title} poster`} />
+      <h3>{movie.title}</h3>
       <div>
         <p>
           <span>⭐️</span>
@@ -327,15 +356,15 @@ function Summary({ watched }) {
         </p>
         <p>
           <span>⭐️</span>
-          <span>{avgImdbRating}</span>
+          <span>{avgImdbRating.toFixed(1)}</span>
         </p>
         <p>
           <span>🌟</span>
-          <span>{avgUserRating}</span>
+          <span>{avgUserRating.toFixed(1)}</span>
         </p>
         <p>
           <span>⏳</span>
-          <span>{avgRuntime} min</span>
+          <span>{avgRuntime.toFixed(1)} min</span>
         </p>
       </div>
     </div>
