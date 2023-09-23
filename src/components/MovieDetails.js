@@ -36,7 +36,7 @@ export function MovieDetails({
     if (!title) return;
     document.title = `Movie | ${title}`;
     return () => {
-      document.title = "UsePopcorn";
+      document.title = "MovieHub";
     };
   }, [title]);
 
