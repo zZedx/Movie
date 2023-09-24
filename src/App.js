@@ -4,7 +4,7 @@ import { Main } from "./components/Main";
 import { Navbar } from "./components/Navbar";
 import { Logo } from "./components/Logo";
 import { Search } from "./components/Search";
-import { Login } from "./components/Login";
+import Login  from "./components/LoginButton";
 import { Box } from "./components/Box";
 import { MovieList } from "./components/MovieList";
 import { MovieDetails } from "./components/MovieDetails";
