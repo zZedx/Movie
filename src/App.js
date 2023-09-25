@@ -36,6 +36,22 @@ export default function App() {
     setIsLoading2(false);
   }
 
+  function handleAddWatched(movie) {
+    isMobile && setQuery('')
+    const filterArr = watched.filter((m) => m.imdbID !== movie.imdbID);
+    setWatched((watched) => [...filterArr, movie]);
+    // localStorage.setItem('watched' , JSON.stringify([...filterArr , movie]))
+    // setSelectedMovie(null);
+  }
+
+  function handleDelete(id) {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+  }
+
+  useEffect(()=>{
+    localStorage.setItem('watched' , JSON.stringify(watched))
+  },[watched])
+
   useEffect(() => {
     const controller = new AbortController();
     async function fetchApi() {
@@ -68,16 +84,6 @@ export default function App() {
     return () => controller.abort();
   }, [query]);
 
-  function handleAddWatched(movie) {
-    isMobile && setQuery('')
-    const filterArr = watched.filter((m) => m.imdbID !== movie.imdbID);
-    setWatched((watched) => [...filterArr, movie]);
-    setSelectedMovie(null);
-  }
-
-  function handleDelete(id) {
-    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
-  }
 
   useEffect(() => {
     const handleResize = () => {
