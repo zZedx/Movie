@@ -42,7 +42,7 @@ export default function App() {
   function handleAddWatched(movie) {
     isMobile && setQuery('')
     const filterArr = watched.filter((m) => m.imdbID !== movie.imdbID);
-    setWatched((watched) => [...filterArr, movie]);
+    setWatched(() => [...filterArr, movie]);
     // localStorage.setItem('watched' , JSON.stringify([...filterArr , movie]))
     setSelectedMovie(null);
   }
@@ -146,6 +146,8 @@ export default function App() {
                 <MovieList
                   movies={movies}
                   handleSelectMovie={handleSelectMovie}
+                  setShowSearchMovie={setShowSearchMovie}
+                  isMobile={isMobile}
                 />
               )}
             </Box>

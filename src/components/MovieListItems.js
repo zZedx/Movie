@@ -1,4 +1,4 @@
-export function MovieListItems({ movie, handleSelectMovie }) {
+export function MovieListItems({ movie, handleSelectMovie}) {
   return (
     <li onClick={() => handleSelectMovie(movie.imdbID)}>
       <img src={movie.Poster} alt={`${movie.Title}`} />
