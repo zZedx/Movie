@@ -9,6 +9,7 @@ import { Box } from "./components/Box";
 import { MovieList } from "./components/MovieList";
 import { MovieDetails } from "./components/MovieDetails";
 import { WatchedList } from "./components/WatchedList";
+import { useLocalStorage } from "./components/useLocalStorage";
 
 export const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -16,10 +17,9 @@ export const average = (arr) =>
 const KEY = "e10fb94b";
 export default function App() {
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState(()=>{
-    const storedValue = localStorage.getItem('watched');
-    return JSON.parse(storedValue)
-  });
+  
+  const [watched , setWatched] = useLocalStorage([] , 'watched')
+
   const [isLoading, setIsLoading] = useState(false);
   const [isLoading2, setIsLoading2] = useState(false);
   const [query, setQuery] = useState("");
