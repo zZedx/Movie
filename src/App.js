@@ -62,7 +62,7 @@ export default function App() {
         setErrorMsg("");
         setIsLoading(true);
         const res = await fetch(
-          `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`,
+          `https://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`,
           { signal: controller.signal }
         );
         if (!res.ok) throw new Error("Something went wrong");
