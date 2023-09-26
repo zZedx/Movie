@@ -31,7 +31,7 @@ export default function App() {
   async function handleSelectMovie(id) {
     setShowSearchMovie(false)
     setIsLoading2(true);
-    const res = await fetch(`http://www.omdbapi.com/?i=${id}&apikey=${KEY}`);
+    const res = await fetch(`https://www.omdbapi.com/?i=${id}&apikey=${KEY}`);
     const data = await res.json();
     setSelectedMovie((selectedMovie) =>
       selectedMovie?.imdbID === id ? null : data
