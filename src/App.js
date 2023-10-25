@@ -4,7 +4,7 @@ import { Main } from "./components/Main";
 import { Navbar } from "./components/Navbar";
 import { Logo } from "./components/Logo";
 import { Search } from "./components/Search";
-import Login  from "./components/LoginButton";
+import Login from "./components/LoginButton";
 import { Box } from "./components/Box";
 import { MovieList } from "./components/MovieList";
 import { MovieDetails } from "./components/MovieDetails";
@@ -17,8 +17,8 @@ export const average = (arr) =>
 const KEY = "e10fb94b";
 export default function App() {
   const [movies, setMovies] = useState([]);
-  
-  const [watched , setWatched] = useLocalStorage([] , 'watched')
+
+  const [watched, setWatched] = useLocalStorage([], "watched");
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoading2, setIsLoading2] = useState(false);
@@ -29,7 +29,7 @@ export default function App() {
   const [showSearchMovie, setShowSearchMovie] = useState(false);
 
   async function handleSelectMovie(id) {
-    setShowSearchMovie(false)
+    setShowSearchMovie(false);
     setIsLoading2(true);
     const res = await fetch(`https://www.omdbapi.com/?i=${id}&apikey=${KEY}`);
     const data = await res.json();
@@ -40,7 +40,7 @@ export default function App() {
   }
 
   function handleAddWatched(movie) {
-    isMobile && setQuery('')
+    isMobile && setQuery("");
     const filterArr = watched.filter((m) => m.imdbID !== movie.imdbID);
     setWatched(() => [...filterArr, movie]);
     // localStorage.setItem('watched' , JSON.stringify([...filterArr , movie]))
@@ -51,9 +51,9 @@ export default function App() {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
 
-  useEffect(()=>{
-    localStorage.setItem('watched' , JSON.stringify(watched))
-  },[watched])
+  useEffect(() => {
+    localStorage.setItem("watched", JSON.stringify(watched));
+  }, [watched]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -69,7 +69,7 @@ export default function App() {
         const data = await res.json();
         if (data.Error) throw new Error(data.Error);
         setMovies(data.Search);
-        setShowSearchMovie(true)
+        setShowSearchMovie(true);
         setErrorMsg("");
       } catch (e) {
         if (e.name !== "AbortError") setErrorMsg(e.message);
@@ -86,7 +86,6 @@ export default function App() {
     fetchApi();
     return () => controller.abort();
   }, [query]);
-
 
   useEffect(() => {
     const handleResize = () => {
@@ -105,7 +104,7 @@ export default function App() {
         <Logo isMobile={isMobile} />
         <Search query={query} setQuery={setQuery} />
         {!isMobile && <Login />}
-        {isMobile && <Toggler/>}
+        {isMobile && <Toggler />}
       </Navbar>
       {!isMobile ? (
         <Main>
@@ -173,11 +172,15 @@ export default function App() {
   );
 }
 
-function Toggler(){
-  const toggleStyle ={
-    fontSize : '2rem'
-  }
-  return <span style={toggleStyle}><i className="uil uil-ellipsis-v"></i></span>
+function Toggler() {
+  const toggleStyle = {
+    fontSize: "2rem",
+  };
+  return (
+    <span style={toggleStyle}>
+      <i className="uil uil-ellipsis-v"></i>
+    </span>
+  );
 }
 
 function ErrorMsg({ errorMsg }) {
